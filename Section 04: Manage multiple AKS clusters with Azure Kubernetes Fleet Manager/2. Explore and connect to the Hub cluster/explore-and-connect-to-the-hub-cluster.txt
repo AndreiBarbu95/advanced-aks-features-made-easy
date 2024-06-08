@@ -1,0 +1,9 @@
+az fleet get-credentials -g aks-fleet-rg -n aks-fleet
+
+k get memberclusters
+
+k get crd
+
+k get node
+
+k run nginx --image nginx

@@ -1,0 +1,13 @@
+k get pod -A
+
+k describe pod coredns-767bfbd4fb-9chrk -n kube-system
+
+k describe cm -n kube-system coredns
+
+k apply -f - <<EOF
+<ama-metrics-settings-configmap> #reference https://github.com/Azure/prometheus-collector/blob/main/otelcollector/configmaps/ama-metrics-settings-configmap.yaml
+EOF
+
+k get pod -n kube-system
+
+k delete pod -n kube-system <ama-metrics-pods>

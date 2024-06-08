@@ -1,0 +1,37 @@
+#Create AKS with the Node Autoprovisioning feature
+
+az group create -l eastus -n nap-rg
+
+az aks create -n nap -g nap-rg -c 2 --node-provisioning-mode Auto --network-plugin azure --network-plugin-mode overlay --network-dataplane cilium
+
+#Install node-viewer (brew or go can be used) reference: https://github.com/awslabs/eks-node-viewer
+
+#For brew installation https://brew.sh/
+
+brew tap aws/tap
+brew install eks-node-viewer
+
+eks-node-viewer -v
+
+#Explore the resources
+az aks get-credentials -g nap-rg -n nap --overwrite-existing
+
+k get node
+
+eks-node-viewer -resources cpu,memory
+
+k get crd | grep -i karpenter
+
+k get nodepools
+
+k get nodepool default -o yaml
+
+k get nodepools system-surge -o yaml
+
+k get nodeclaim
+
+k get aksnodeclass
+
+k get aksnodeclass default -o yaml
+
+k get aksnodeclass system-surge -o yaml

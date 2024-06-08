@@ -1,0 +1,24 @@
+k create ns test-istio
+
+k label namespace test-istio istio.io/rev=asm-X-Y
+
+k create deploy nginx --image nginx --replicas 2 -n test-istio
+
+k get pod -n test-istio
+
+k get pods -n test-istio -o "custom-columns=NAME:.metadata.name,INIT:.spec.initContainers[*].name,CONTAINERS:.spec.containers[*].name"
+
+k describe pod <nginx-pod> -n test-istio
+
+k expose deploy -n test-istio nginx --port 80
+
+#Install istioctl as per https://istio.io/latest/docs/ops/diagnostic-tools/istioctl/
+
+curl -sL https://istio.io/downloadIstioctl | sh -
+
+export PATH=$HOME/.istioctl/bin:$PATH
+
+istioctl -h
+
+istioctl analyze -n test-istio 
+

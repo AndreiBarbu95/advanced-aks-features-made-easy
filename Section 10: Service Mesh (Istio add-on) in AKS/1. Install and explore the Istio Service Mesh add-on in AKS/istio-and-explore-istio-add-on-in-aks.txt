@@ -1,0 +1,17 @@
+az group create -l eastus -n aks-istio-rg
+
+az aks create -g aks-istio-rg -n aks-istio --enable-asm --kubernetes-version 1.29
+
+az aks show -g aks-istio-rg -n aks-istio --query 'serviceMeshProfile'
+
+az aks get-credentials -g aks-istio-rg -n aks-istio --overwrite-existing
+
+k get pod -A
+
+k describe pod -n aks-istio-system | grep -i image:
+
+kubectl get deployment -l app=istiod -n aks-istio-system -o json | jq '.items[].spec.template.spec.containers[].env[] | select(.name=="ENABLE_NATIVE_SIDECARS")'
+
+k get cm -A
+
+k get crd

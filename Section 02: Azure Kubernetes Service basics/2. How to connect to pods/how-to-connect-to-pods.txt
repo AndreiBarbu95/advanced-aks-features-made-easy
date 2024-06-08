@@ -1,0 +1,29 @@
+k run nginx --image nginx
+
+kn default #the equivalent of: kubectl config set-context --current --namespace default
+
+k get pod
+
+k exec -it nginx -- bash
+
+whoami
+
+curl -v microsoft.com
+
+exit
+
+k exec -it nginx -- curl -v microsoft.com
+
+k delete pod nginx
+
+k get pod -A
+
+k exec -it <konnectivity-agent-pod> -n kube-system -- bash
+
+k exec -it <konnectivity-agent-pod> -n kube-system -- sh
+
+k exec -it <konnectivity-agent-pod> -n kube-system -- /bin/bash
+
+k exec -it <konnectivity-agent-pod> -n kube-system -- /bin/sh
+
+k exec -it <konnectivity-agent-pod> -n kube-system -- whoami

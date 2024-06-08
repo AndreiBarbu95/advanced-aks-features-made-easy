@@ -1,0 +1,7 @@
+k get pod -A
+
+az k8s-extension delete -g aks-flux-rg -c aks-flux -n flux -t managedClusters
+
+k get ns
+
+k get all -n flux-system

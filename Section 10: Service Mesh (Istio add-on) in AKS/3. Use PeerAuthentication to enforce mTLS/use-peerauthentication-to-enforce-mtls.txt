@@ -1,0 +1,24 @@
+k get pod -n test-istio -o wide
+
+k exec -it <nginx-pod> -n test-istio -- bash
+
+curl <the-other-nginx-pod-ip>
+
+k get crd
+
+k get peerauthentication -A
+
+k apply -f - <<EOF
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: test-istio
+spec:
+  mtls:
+    mode: STRICT
+EOF
+	
+curl <the-other-nginx-pod-ip>
+
+k delete peerauthentication default -n test-istio

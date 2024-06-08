@@ -1,0 +1,39 @@
+az aks get-credentials --resource-group aks-test-rg --name aks-test-1 --overwrite-existing
+
+k create deploy nginx --image nginx
+
+k expose deploy nginx --port 80 --name nginx-svc --type LoadBalancer
+
+k get svc
+
+curl <nginx-svc-ip>
+
+az aks get-credentials --resource-group aks-test-rg --name aks-test-2 --overwrite-existing
+
+k create deploy nginx --image nginx
+
+k expose deploy nginx --port 80 --name nginx-svc --type LoadBalancer
+
+k get svc
+
+curl <nginx-svc-ip>
+
+az aks get-credentials --resource-group aks-prod-rg --name aks-prod-1 --overwrite-existing
+
+k create deploy nginx --image nginx
+
+k expose deploy nginx --port 80 --name nginx-svc --type LoadBalancer
+
+k get svc
+
+curl <nginx-svc-ip>
+
+az aks get-credentials --resource-group aks-prod-rg --name aks-prod-2 --overwrite-existing
+
+k create deploy nginx --image nginx
+
+k expose deploy nginx --port 80 --name nginx-svc --type LoadBalancer
+
+k get svc
+
+curl <nginx-svc-ip>

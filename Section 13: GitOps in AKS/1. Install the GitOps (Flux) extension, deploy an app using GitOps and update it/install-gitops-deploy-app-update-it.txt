@@ -1,0 +1,62 @@
+az group create -l eastus -n aks-flux-rg
+
+az aks create -g aks-flux-rg -n aks-flux -c 2
+
+az aks get-credentials -g aks-flux-rg -n aks-flux --overwrite-existing
+
+k get pod,svc -A
+
+k create ns test-gitops-ns
+
+k get pod -A
+
+k get crd
+
+k get gitrepositories -A
+
+k get gitrepositories -n test-gitops-ns test-flux -o yaml
+
+k get kustomization -A
+
+k get kustomization -n test-gitops-ns test-flux-kustomization-1 -o yaml
+
+k get pod,svc -A
+
+k logs -n flux-system <fluxconfig-controller-pod>
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: test-gitops
+  name: test-gitops
+  namespace: test-gitops-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-gitops
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: test-gitops
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-gitops-svc
+  namespace: test-gitops-ns #this is not added initially just to exemplify how an error looks and how Flux syncs the cluster
+spec:
+  type: LoadBalancer
+  selector:
+    app: test-gitops
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

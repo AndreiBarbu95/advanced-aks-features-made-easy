@@ -1,0 +1,40 @@
+az group create -l eastus -n aks-byocni-rg
+
+az aks create -g aks-byocni-rg -n aks-byocni --network-plugin none -c 2
+
+az aks get-credentials -g aks-byocni-rg -n aks-byocni --overwrite-existing
+
+k get node
+
+k get pod -A
+
+#Install antrea as per https://antrea.io/docs/v2.0.0/docs/aks-installation/ "Deploying Antrea in encap mode"
+
+helm repo add antrea https://charts.antrea.io
+helm repo update
+
+cat <<EOF >> values-aks.yml
+nodeIPAM:
+  enable: true
+  clusterCIDRs: ["10.10.0.0/16"]
+EOF
+
+helm install -n kube-system -f values-aks.yml antrea antrea/antrea
+
+k get pod -A
+
+k get ds -A
+
+k get node
+
+k get crd
+
+k get node
+
+k node-shell <node-name>
+
+ps aux | grep antrea
+
+ps aux | grep ovs-vswitchd
+
+find / -name antrea

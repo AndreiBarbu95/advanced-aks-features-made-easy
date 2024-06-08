@@ -1,0 +1,12 @@
+# set up autocomplete in bash into the current shell.Please note that bash-completion package should be installed first.
+source <(kubectl completion bash)
+
+# add the following line to your bash shell profile (vim ~/.bashrc)
+
+source <(kubectl completion bash)
+complete -F __start_kubectl k
+alias k=kubectl
+alias kn='k config set-context --current --namespace'
+
+# reload the bash profile to make the alias available
+source ~/.bashrc

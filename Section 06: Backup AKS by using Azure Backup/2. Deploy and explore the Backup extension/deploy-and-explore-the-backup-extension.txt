@@ -1,0 +1,3 @@
+k describe pod -n kube-system <extension-agent-pod> <extension-operator-pod> | grep -i image:
+
+k describe pod -n dataprotection-microsoft | grep -i image:

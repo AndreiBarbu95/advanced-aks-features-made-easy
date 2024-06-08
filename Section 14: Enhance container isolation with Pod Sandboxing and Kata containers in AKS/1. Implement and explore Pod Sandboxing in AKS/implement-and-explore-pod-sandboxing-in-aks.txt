@@ -1,0 +1,77 @@
+az group create -l westus -n aks-sandboxing-rg
+
+az aks create -g aks-sandboxing-rg -n aks-sandboxing --os-sku AzureLinux --workload-runtime KataMshvVmIsolation --node-vm-size Standard_D4s_v3 --node-count 1
+
+az aks get-credentials -g aks-sandboxing-rg -n aks-sandboxing --overwrite-existing
+
+k get pod -A
+
+k get node
+
+k node-shell <node-name>
+
+k apply -f - <<EOF
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nginx-without-sandbox
+spec:
+  containers:
+  - name: nginx-without-sandbox
+    image: nginx
+EOF
+
+k get pod -o wide
+
+ps aux | grep -i nginx
+
+k delete pod nginx-without-sandbox
+
+k get runtimeclass
+
+k apply -f - <<EOF
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nginx-with-sandbox
+spec:
+  runtimeClassName: kata-mshv-vm-isolation
+  containers:
+  - name: nginx-with-sandbox
+    image: nginx
+EOF
+
+k get pod -o wide
+
+ps aux | grep -i nginx
+
+k apply -f - <<EOF
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nginx-without-sandbox
+spec:
+  containers:
+  - name: nginx-without-sandbox
+    image: nginx
+EOF
+
+ps aux | grep cloud-hypervisor
+
+ch-remote --api-socket <socket> info
+
+k get pod -o wide
+
+exit
+
+k exec -it nginx-without-sandbox -- bash
+
+k exec -it nginx-with-sandbox -- bash
+
+uname -a
+
+cat /proc/meminfo | grep -i mem | awk '{print $0, sprintf("%.2f MB\n", $2/1024)}'
+
+lscpu
+
+df -hT

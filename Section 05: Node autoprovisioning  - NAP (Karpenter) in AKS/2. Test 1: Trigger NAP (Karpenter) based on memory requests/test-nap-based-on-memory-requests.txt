@@ -1,0 +1,60 @@
+eks-node-viewer -resources cpu,memory -disable-pricing
+
+k get pod -A -o wide
+
+k get node
+
+k get events -A --field-selector source=karpenter -w
+
+k apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deploy
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+      - name: test
+        image: nginx
+        resources:
+          requests:
+            memory: "1Gi"
+EOF
+
+k get pod -o wide
+
+k get node
+
+k get pod -o wide
+
+k get nodepool
+
+k scale deploy test-deploy --replicas 20
+
+k get pod -o wide
+
+k get node
+
+k scale deploy test-deploy --replicas 15
+
+k get pod -o wide
+
+k get node
+
+k delete deploy test-deploy
+
+k get pod -o wide
+
+k get node
+
+#Scale the AKS node pool to 1
+
+k get pod -o wide -A

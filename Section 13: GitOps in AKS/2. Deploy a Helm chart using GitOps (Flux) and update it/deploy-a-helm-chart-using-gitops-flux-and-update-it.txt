@@ -1,0 +1,58 @@
+k create ns test-gitops-helm-ns
+
+k get helmchart -n test-gitops-helm-ns
+
+k get kustomization -n test-gitops-helm-ns
+
+k get helmrepository -n test-gitops-helm-ns
+
+k get helmrelease -n test-gitops-helm-ns
+
+k get pod,svc
+
+k describe pod <nginx-pod> -n test-gitops-helm-ns
+
+k describe pod <new-nginx-pod> -n test-gitops-helm-ns
+
+#helmrepository.yaml:
+
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: bitnami
+  namespace: test-gitops-helm-ns
+spec:
+  interval: 1m
+  url: https://charts.bitnami.com/bitnami
+ 
+#helmrelease.yaml:
+
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: nginx
+  namespace: test-gitops-helm-ns
+spec:
+  targetNamespace: test-gitops-helm-ns
+  releaseName: nginx
+  chart:
+    spec:
+      chart: nginx
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: test-gitops-helm-ns
+      version: "17.3.1"
+  interval: 1m
+  values:
+    replicaCount: 1
+    service:
+      type: LoadBalancer
+
+#kustomization.yaml:
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - helmrepository.yaml
+  - helmrelease.yaml

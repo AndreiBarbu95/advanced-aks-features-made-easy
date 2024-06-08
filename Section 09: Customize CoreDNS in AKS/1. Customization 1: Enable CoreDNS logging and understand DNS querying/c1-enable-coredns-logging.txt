@@ -1,0 +1,54 @@
+az group create -l eastus -n aks-coredns-rg
+
+az aks create -g aks-coredns-rg -n aks-coredns -c 2
+
+az aks get-credentials -g aks-coredns-rg -n aks-coredns --overwrite-existing
+
+k get pod -A
+
+k get cm -A
+
+k get cm -n kube-system coredns -o yaml
+
+k get cm -n kube-system coredns-custom -o yaml
+
+k logs --namespace kube-system -l k8s-app=kube-dns -f
+
+k run test-dns --image nginx
+
+k get pod
+
+k exec -it test-dns -- bash
+
+apt-get update -y && apt-get install dnsutils -y
+
+nslookup microsoft.com
+
+k get svc -A
+
+nslookup kubernetes
+
+k apply -f - <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  log.override: | # you may select any name here, but it must end with the .override file extension
+        log
+EOF
+
+k -n kube-system rollout restart deployment coredns
+
+k get pod -A
+
+k logs --namespace kube-system -l k8s-app=kube-dns -f
+
+k exec -it test-dns -- bash
+
+nslookup microsoft.com
+
+cat /etc/resolv.conf
+
+nslookup kubernetes

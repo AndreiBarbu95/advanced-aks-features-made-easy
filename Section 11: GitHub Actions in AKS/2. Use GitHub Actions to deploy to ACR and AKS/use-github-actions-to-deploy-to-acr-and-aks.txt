@@ -1,0 +1,141 @@
+#Kubernetes manifest azure-vote-all-in-one-redis.yaml:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azure-vote-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azure-vote-back
+  template:
+    metadata:
+      labels:
+        app: azure-vote-back
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: azure-vote-back
+        image: mcr.microsoft.com/oss/bitnami/redis:6.0.8
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        ports:
+        - containerPort: 6379
+          name: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-vote-back
+spec:
+  ports:
+  - port: 6379
+  selector:
+    app: azure-vote-back
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azure-vote-front
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: azure-vote-front
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: azure-vote-front
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: azure-vote-front
+        image: <acr-name>.azurecr.io/azuredocs/azure-vote-front:v1
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+        env:
+        - name: REDIS
+          value: "azure-vote-back"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-vote-front
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: azure-vote-front
+
+#main.yaml workflow:
+
+name: build_deploy_aks
+on:
+  push:
+    paths:
+      - "azure-vote/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code 
+        uses: actions/checkout@v3
+      - name: ACR build
+        id: build-push-acr
+        uses: azure/acr-build@v1
+        with:
+          service_principal: ${{ secrets.service_principal }}
+          service_principal_password: ${{ secrets.service_principal_password }}
+          tenant: ${{ secrets.tenant }}
+          registry: ${{ secrets.registry }}
+          repository: ${{ secrets.repository }}
+          image:  azure-vote-front
+          folder: azure-vote
+          branch: master
+          tag: ${{ github.sha }}
+      - name: Azure login
+        id: login
+        uses: azure/login@v1.4.3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Set AKS context
+        id: set-context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: '${{ secrets.resource_group }}' 
+          cluster-name: '${{ secrets.cluster_name }}'
+      - name: Setup kubectl
+        id: install-kubectl
+        uses: azure/setup-kubectl@v3
+      - name: Deploy to AKS
+        id: deploy-aks
+        uses: Azure/k8s-deploy@v4
+        with:
+          namespace: 'default'
+          manifests: |
+             azure-vote-all-in-one-redis.yaml
+          images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
+          pull-images: false
+      - name: Get pods
+        run: kubectl get pod | grep vote
+
+#Commands:
+az aks get-credentials --resource-group github-actions-rg --name aks-gh-actions --overwrite-existing
+
+k get pod,svc -A
+

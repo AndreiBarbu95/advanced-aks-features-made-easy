@@ -1,0 +1,17 @@
+az group create --name aks-ppg-rg --location eastus
+
+az aks create -g aks-ppg-rg -n aks-ppg -c 1
+
+az ppg create --name my-ppg --resource-group aks-ppg-rg --type standard
+
+az aks nodepool add -g aks-ppg-rg --cluster-name aks-ppg --name ppgnodepool --node-count 2 --ppg <my-ppg-resource-id>
+
+az aks get-credentials -g aks-ppg-rg -n aks-ppg --overwrite-existing
+
+k get node -o wide
+
+k node-shell <ppg-node>
+
+ping -c 10 <regular-node-ip>
+
+ping -c 10 <the-other-ppg-node-ip>

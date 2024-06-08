@@ -1,0 +1,35 @@
+k config use-context aks-test-2
+
+k get node
+
+k config use-context aks-test-1
+
+k get node
+
+k get svc
+
+curl <nginx-svc-external-ip>
+
+k config current-context
+
+k config use-context aks-test-2
+
+k get svc
+
+curl <nginx-svc-external-ip>
+
+k config use-context aks-prod-1
+
+k get node
+
+k get svc
+
+curl <nginx-svc-external-ip>
+
+k config use-context aks-prod-2
+
+k get node
+
+k get svc
+
+curl <nginx-svc-external-ip>

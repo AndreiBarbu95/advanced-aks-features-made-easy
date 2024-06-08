@@ -1,0 +1,84 @@
+#Install Terraform: https://developer.hashicorp.com/terraform/install
+
+terraform -v
+
+#Optionally install Terraform-related VSCode extensions
+
+mkdir terraform
+
+#Fill provider.tf as per https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs; also see below the file reference
+
+cd terraform
+
+terraform init
+
+terraform init -upgrade
+
+#Fill main.tf as per https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster; also see below the file reference
+
+terraform plan -out main.tfplan
+
+terraform apply "main.tfplan"
+
+#provider.tf:
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "=3.106.1"
+    }
+  }
+}
+
+# Configure the Microsoft Azure Provider
+provider "azurerm" {
+  features {}
+
+  client_id       = "00000000-0000-0000-0000-000000000000"
+  client_secret   = var.client_secret
+  tenant_id       = "10000000-0000-0000-0000-000000000000"
+  subscription_id = "20000000-0000-0000-0000-000000000000"
+}
+
+#main.tf:
+resource "azurerm_resource_group" "example" {
+  name     = "example-resources"
+  location = "East Us"
+}
+
+resource "azurerm_kubernetes_cluster" "example" {
+  name                = "example-aks1"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  dns_prefix          = "exampleaks1"
+
+  default_node_pool {
+    name       = "default"
+    node_count = 1
+    vm_size    = "Standard_D2_v2"
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  tags = {
+    Environment = "Production"
+  }
+
+  network_profile {
+    network_plugin = "azure"
+  }
+
+}
+
+output "client_certificate" {
+  value     = azurerm_kubernetes_cluster.example.kube_config[0].client_certificate
+  sensitive = true
+}
+
+output "kube_config" {
+  value = azurerm_kubernetes_cluster.example.kube_config_raw
+
+  sensitive = true
+}

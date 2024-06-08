@@ -1,0 +1,88 @@
+eks-node-viewer -resources cpu,memory -disable-pricing
+
+k get pod -A -o wide
+
+k get node
+
+k get events -A --field-selector source=karpenter -w
+
+k apply -f - <<EOF
+apiVersion: karpenter.azure.com/v1alpha2
+kind: AKSNodeClass
+metadata:
+  name: nap-aksnodeclass
+spec:
+  imageFamily: AzureLinux
+  osDiskSizeGB: 128
+  tags:
+    env: prod
+EOF
+
+k get nodepool default -o yaml | grep -i weight
+
+k apply -f - <<EOF
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: nap-nodepool
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        name: nap-aksnodeclass
+      requirements:
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - amd64
+      - key: kubernetes.io/os
+        operator: In
+        values:
+        - linux
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - on-demand
+      - key: karpenter.azure.com/sku-family
+        operator: In
+        values:
+        - D
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: Never
+  limits:
+    cpu: "1000"
+    memory: 1000Gi
+  weight: 10
+EOF
+
+k get aksnodeclass,nodepool
+
+k apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deploy-5000m
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+      - name: test
+        image: nginx
+        resources:
+          requests:
+            cpu: "5000m"
+EOF
+
+k get pod -o wide
+
+k get node
+
+k get nodeclaim

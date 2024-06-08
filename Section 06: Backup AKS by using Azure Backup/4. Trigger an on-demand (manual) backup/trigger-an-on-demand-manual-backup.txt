@@ -1,0 +1,5 @@
+az aks trustedaccess rolebinding list --resource-group aks-backup-rg --cluster-name aks-source
+
+k get ns
+
+k delete ns flask-app-ns

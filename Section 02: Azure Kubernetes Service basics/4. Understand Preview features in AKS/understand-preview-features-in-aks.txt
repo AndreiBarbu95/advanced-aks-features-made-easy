@@ -1,0 +1,11 @@
+az extension list-available -o table | grep -i -e name -e aks-preview
+
+az extension add --name aks-preview #install the extension if missing
+
+az extension update --name aks-preview #update the extension if available
+
+az feature list --namespace Microsoft.ContainerService -o table
+
+az feature register --namespace "Microsoft.ContainerService" --name "FeatureName"
+
+az feature show --namespace "Microsoft.ContainerService" --name "FeatureName"

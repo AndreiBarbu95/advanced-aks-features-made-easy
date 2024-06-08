@@ -1,0 +1,5 @@
+#Have aks.bicep empty
+
+az deployment group what-if --resource-group aks-bicep-rg --template-file aks.bicep --mode Complete
+
+az deployment group create --resource-group aks-bicep-rg --template-file aks.bicep --mode Complete

@@ -1,0 +1,49 @@
+k logs --namespace kube-system -l k8s-app=kube-dns -f
+
+k exec -it test-dns -- bash
+
+nslookup example.com
+
+nslookup microsoft.com
+
+k apply -f - <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  test.server: | # you may select any name here, but it must end with the .server file extension
+    example.com:53 {
+     errors
+     cache 30
+     forward . 234.6.4.3
+    }
+  log.override: | # you may select any name here, but it must end with the .override file extension
+        log
+EOF
+
+k -n kube-system rollout restart deployment coredns
+
+k get pod -A
+
+k logs --namespace kube-system -l k8s-app=kube-dns -f
+
+k exec -it test-dns -- bash
+
+nslookup example.com
+
+nslookup microsoft.com
+
+k apply -f - <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  log.override: | # you may select any name here, but it must end with the .override file extension
+        log
+EOF
+
+k -n kube-system rollout restart deployment coredns

@@ -1,0 +1,19 @@
+az aks create -g aks-backup-rg -n aks-target -c 2
+
+az aks get-credentials -g aks-backup-rg -n aks-target
+
+k get pod -A
+
+k get ns
+
+k get pod,svc,configmap,secret -n flask-app-ns
+
+k run nginx --image nginx
+
+k get pod
+
+k exec -it nginx -- curl <flask-app-service-ip>
+
+k get pod,pv,pvc -n disk-app-ns
+
+k exec -it <disk-app-pod> -n disk-app-ns -- cat /mnt/azuredisk/outfile

@@ -1,0 +1,9 @@
+k get pod -A
+
+k describe cm -n kube-system coredns-autoscaler
+
+k get node
+
+k edit cm -n kube-system coredns-autoscaler
+
+k get pod -A

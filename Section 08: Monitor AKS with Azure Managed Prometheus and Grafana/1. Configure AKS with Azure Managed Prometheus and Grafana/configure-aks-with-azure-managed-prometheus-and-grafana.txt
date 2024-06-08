@@ -1,0 +1,9 @@
+az group create -l eastus -n aks-prometheus-grafana-rg
+
+az aks create -g aks-prometheus-grafana-rg -n aks-prometheus-grafana -c 2
+
+az aks get-credentials -g aks-prometheus-grafana-rg -n aks-prometheus-grafana --overwrite-existing
+
+k get pod -A
+
+#Enable Azure Managed Prometheus and Grafana

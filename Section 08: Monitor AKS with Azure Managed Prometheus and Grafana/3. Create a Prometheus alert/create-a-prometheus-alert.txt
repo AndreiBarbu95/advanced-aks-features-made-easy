@@ -1,0 +1,7 @@
+kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"} > 0 #This expression checks if there is any pod container in the "CrashLoopBackOff" state.
+
+k get pod -A
+
+k run crashingpod --image busybox
+
+k delete pod crashingpod

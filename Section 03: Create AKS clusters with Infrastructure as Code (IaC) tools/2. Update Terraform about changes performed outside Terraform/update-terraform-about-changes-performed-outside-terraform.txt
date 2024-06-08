@@ -1,0 +1,7 @@
+terraform plan -out main.tfplan
+
+terraform apply -refresh-only
+
+#Update main.tf
+
+terraform plan -out main.tfplan

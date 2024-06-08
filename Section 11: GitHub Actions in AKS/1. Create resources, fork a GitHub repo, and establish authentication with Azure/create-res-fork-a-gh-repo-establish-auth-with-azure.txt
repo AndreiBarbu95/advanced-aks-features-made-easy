@@ -1,0 +1,12 @@
+az group create -l eastus -n aks-gh-actions-rg
+
+az acr create -n <acr-name> -g aks-gh-actions-rg --sku Basic
+
+az aks create -g aks-gh-actions-rg -n aks-gh-actions -c 2 --attach-acr <acr-name>
+
+az ad sp create-for-rbac \
+    --name "ghActionAzureVote" \
+    --scope /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP> \
+    --role Contributor \
+    --json-auth
+

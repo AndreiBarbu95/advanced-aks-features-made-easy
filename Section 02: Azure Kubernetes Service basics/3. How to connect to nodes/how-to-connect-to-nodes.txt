@@ -1,0 +1,51 @@
+k get node
+
+kubectl debug node/<node-name> -it --image=mcr.microsoft.com/cbl-mariner/busybox:2.0
+
+k get pod -A
+
+k describe pod <debugger-pod>
+
+k get pod <debugger-pod> -o yaml | grep -i privileged
+
+ls /etc
+
+chroot /host
+
+ls /etc
+
+whoami
+
+curl -v microsoft.com
+
+cd /var/log
+
+ls
+
+exit
+
+exit
+
+k get pod -A
+
+#Node-shell is not automatically part of core kubectl. If you want to use it, please install it
+
+k get node
+
+k node-shell <node-name>
+
+k get pod -A
+
+k describe pod <nsenter-pod>
+
+k get pod <nsenter-pod> -o yaml | grep -i privileged
+
+ls /etc
+
+whoami
+
+curl -v microsoft.com
+
+exit
+
+k get pod -A

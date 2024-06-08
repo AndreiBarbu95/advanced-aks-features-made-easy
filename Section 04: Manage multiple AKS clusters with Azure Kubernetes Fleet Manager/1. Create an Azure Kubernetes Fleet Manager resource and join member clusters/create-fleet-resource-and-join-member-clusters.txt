@@ -1,0 +1,11 @@
+az group create -l centralindia -n aks-test-rg
+
+az group create -l eastus -n aks-prod-rg
+
+az aks create -g aks-test-rg -n aks-test-1 -c 1
+
+az aks create -g aks-test-rg -n aks-test-2 -c 1
+
+az aks create -g aks-prod-rg -n aks-prod-1 -c 1
+
+az aks create -g aks-prod-rg -n aks-prod-2 -c 1
