@@ -1,4 +1,4 @@
-**Advanced Azure Kubernetes Service (AKS) Features Made Easy course**
+[**Advanced Azure Kubernetes Service (AKS) Features Made Easy course**](https://go.courscape.com/advanced-aks-discount)
 
 [![AKS Advanced Cover 2](https://github.com/AndreiBarbu95/advanced-aks-features-made-easy/assets/117741767/6e206084-edee-4ffc-a15a-cc8bd3d4fcd2)](https://go.courscape.com/advanced-aks-discount)
 
