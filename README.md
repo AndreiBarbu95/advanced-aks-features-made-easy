@@ -1,6 +1,6 @@
-#advanced-aks-features-made-easy
-Take your AKS knowledge and setup to the next level with [this course.] (https://go.courscape.com/advanced-aks-discount)
-You can have it at [a discounted price using this link.] (https://go.courscape.com/advanced-aks-discount)
+[![AKS Advanced Cover 2](https://github.com/AndreiBarbu95/advanced-aks-features-made-easy/assets/117741767/6e206084-edee-4ffc-a15a-cc8bd3d4fcd2)](https://go.courscape.com/advanced-aks-discount)
+Take your AKS knowledge and setup to the next level with [this course.](https://go.courscape.com/advanced-aks-discount)
+You can have it at [a discounted price using this link.](https://go.courscape.com/advanced-aks-discount)
 
 🌟Here's a sneak peek at what you'll learn:🌟
 
@@ -29,7 +29,3 @@ You can have it at [a discounted price using this link.] (https://go.courscape.c
 🚀 𝗣𝗿𝗼𝘅𝗶𝗺𝗶𝘁𝘆 𝗣𝗹𝗮𝗰𝗲𝗺𝗲𝗻𝘁 𝗚𝗿𝗼𝘂𝗽𝘀: Reduce latency in your applications by using proximity placement groups in AKS.
 
 🔒 𝗟𝗼𝗻𝗴-𝗧𝗲𝗿𝗺 𝗦𝘂𝗽𝗽𝗼𝗿𝘁 (𝗟𝗧𝗦): Understand the long-term support option available in AKS to ensure extended support and upgrade window.
-
-You can have it at [a discounted price using this link.]
-
-[![AKS Advanced Cover 2](https://github.com/AndreiBarbu95/advanced-aks-features-made-easy/assets/117741767/6e206084-edee-4ffc-a15a-cc8bd3d4fcd2)](https://go.courscape.com/advanced-aks-discount)
