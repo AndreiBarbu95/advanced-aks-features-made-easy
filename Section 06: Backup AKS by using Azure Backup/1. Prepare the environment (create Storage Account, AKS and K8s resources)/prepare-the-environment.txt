@@ -1,0 +1,161 @@
+az group create -l eastus -n aks-backup-rg
+
+az storage account create -g aks-backup-rg -n aksbackupsa45 --sku Standard_LRS
+
+az storage container create --account-name aksbackupsa45 -n aks-backup-container
+
+az aks create -g aks-backup-rg -n aks-source -c 2
+
+az aks get-credentials -g aks-backup-rg -n aks-source
+
+k create ns nginx-ns
+
+k create deploy nginx --image nginx -n nginx-ns
+
+k get pod -n nginx-ns
+
+k create ns flask-app-ns
+
+kubectl apply -n flask-app-ns -f - <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: main-py-configmap
+data:
+  main.py: |
+    from flask import Flask
+    import os
+
+    app = Flask(__name__)
+
+    @app.route("/")
+    def hello():
+        api_key = os.environ.get("API_KEY")
+        return f"Hello World! The API key is {api_key}"
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0")
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: api-key-secret
+type: Opaque
+data:
+  api-key: YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+        - name: flask-app
+          image: tiangolo/uwsgi-nginx-flask
+          ports:
+            - containerPort: 80
+          env:
+            - name: FLASK_APP
+              value: main.py
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-key-secret
+                  key: api-key
+          volumeMounts:
+            - name: main-py-volume
+              mountPath: /app/main.py
+              subPath: main.py
+      volumes:
+        - name: main-py-volume
+          configMap:
+            name: main-py-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-app-service
+spec:
+  selector:
+    app: flask-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+EOF
+
+k get pod,svc,configmap,secret -n flask-app-ns
+
+k get pod -n nginx-ns
+
+k exec -it <nginx-pod> -n nginx-ns -- curl <flask-app-service-ip>
+
+k create ns disk-app-ns
+
+k get sc
+
+vim disk-app.yaml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-azuredisk
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: managed-csi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disk-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disk-app
+  template:
+    metadata:
+      labels:
+        app: disk-app
+    spec:
+      nodeSelector:
+        kubernetes.io/os: linux
+      containers:
+        - name: disk-app
+          image: nginx
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              while true; do
+                echo "$(date) $(hostname)" >> /mnt/azuredisk/outfile;
+                sleep 120;
+              done
+          volumeMounts:
+            - name: azuredisk01
+              mountPath: "/mnt/azuredisk"
+              readOnly: false
+      volumes:
+        - name: azuredisk01
+          persistentVolumeClaim:
+            claimName: pvc-azuredisk
+
+k apply -f disk-app.yaml -n disk-app-ns
+
+k get pod,pv,pvc -n disk-app-ns
+
+k exec -it <disk-app-pod> -n disk-app-ns -- cat /mnt/azuredisk/outfile
